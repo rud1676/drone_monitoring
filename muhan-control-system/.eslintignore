@@ -1,0 +1,6 @@
+.storybook/
+storybook-static/
+build/
+.next/
+next.config.js
+tsconfig.json

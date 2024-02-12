@@ -1,0 +1,40 @@
+{
+  "env": { "node": true, "browser": true },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["tsconfig.json"]
+  },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": [
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "airbnb",
+    "airbnb-typescript",
+    "prettier"
+  ],
+  "rules": {
+    "react-hooks/rules-of-hooks": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/function-component-definition": "off",
+    "react/require-default-props": "off",
+    "react/forbid-prop-types": "off",
+    "no-param-reassign": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-props-no-spreading": "off",
+    "object-curly-newline": "off",
+    "import/no-extraneous-dependencies": "off",
+    "arrow-body-style": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "react/no-array-index-key": "off",
+    "no-console": "warn",
+    "react/button-has-type": "off",
+    "@next/next/no-img-element": 0,
+    "jsx-a11y/no-noninteractive-element-interactions": 0,
+    "jsx-a11y/click-events-have-key-events": 0
+  },
+  "ignorePatterns": ["!.storybook", "!.eslintrc.js"]
+}
