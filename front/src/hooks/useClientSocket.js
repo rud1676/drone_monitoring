@@ -8,8 +8,8 @@ const useClientSocket = () => {
     socket.disconnect();
     socket = {};
   }, []);
+
   if (!socket) {
-    console.log(`${backUrl}/web-client`);
     socket = io(`${backUrl}/web-client`, {
       transports: ['websocket'],
     });
