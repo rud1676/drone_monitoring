@@ -5,11 +5,7 @@ import apiRouter from './routers/api';
 const app = express();
 app.use(
   cors({
-    origin: [
-      'http://localhost:4051',
-      'https://muhan-control-system.vercel.app',
-      'https://main.d3gdj7l0zvv4fe.amplifyapp.com'
-    ],
+    origin: ['http://localhost:4051'],
     credentials: true,
     webSocket: true
   })

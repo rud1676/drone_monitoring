@@ -29,10 +29,12 @@ function handleDroneClientConnection(io, webNsp) {
     // 드론 연결 및 메시지 처리 로직
     initializeDroneConnection(socket);
 
+    // 드론에 관한 정보가 담긴 메세지를 처리 -> 모니터링 앱에 보내준다.
     socket.on('message', (data) => {
       processDroneMessage(socket, data, webNsp);
     });
 
+    // 드론이 해야할 미션 정보(경로)를 받아 모니터링 앱에 보내준다.
     socket.on('mission', (data) => {
       updateDroneMission(socket, data, webNsp);
     });

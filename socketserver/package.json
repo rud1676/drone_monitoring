@@ -6,13 +6,12 @@
     "start": "node build/server.js",
     "watch": "nodemon --exec babel-node src/server.js",
     "build": "babel src -d build",
-    "prettier": "prettier --check .",
-    "lint": "eslint --ext js ."
+    "prettier": "prettier --check ."
   },
   "repository": {
     "type": "git"
   },
-  "author": "",
+  "author": "rud1676",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
