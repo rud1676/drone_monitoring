@@ -14,6 +14,7 @@ const socketInit = (server, app) => {
 
 module.exports = (server, app) => {
   const io = socketInit(server, app);
+  console.log(ig);
 
   const webNsp = io.of('/web-client').on('connect', (socket) => {
     console.log('hello');
