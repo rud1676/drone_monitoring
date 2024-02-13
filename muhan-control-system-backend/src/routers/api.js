@@ -1,6 +1,6 @@
 import express from 'express';
-import { devHealth } from '../controllers/api';
-// import asyncHandler from 'express-async-handler';
+
+import devHealth from '../controller/api';
 
 const router = express.Router({ mergeParams: true });
 

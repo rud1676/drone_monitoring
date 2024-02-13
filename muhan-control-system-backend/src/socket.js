@@ -3,12 +3,17 @@ const moment = require('moment');
 
 const onlineMap = {};
 
-module.exports = (server, app) => {
+const socketInit = (server, app) => {
   const io = SocketIO(server, {
     path: '/socket.io'
   });
   app.set('io', io);
   app.set('onlineMap', onlineMap);
+  return io;
+};
+
+module.exports = (server, app) => {
+  const io = socketInit(server, app);
 
   const webNsp = io.of('/web-client').on('connect', (socket) => {
     socket.emit('hello', `드론 관제탑 서버에 접속하였습니다.`);
