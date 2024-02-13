@@ -1,27 +1,23 @@
-const SocketIO = require('socket.io');
-const moment = require('moment');
+"use strict";
 
-const onlineMap = {};
-
-const socketInit = (server, app) => {
-  const io = SocketIO(server, {
+var SocketIO = require('socket.io');
+var moment = require('moment');
+var onlineMap = {};
+var socketInit = function socketInit(server, app) {
+  var io = SocketIO(server, {
     path: '/socket.io'
   });
   app.set('io', io);
   app.set('onlineMap', onlineMap);
   return io;
 };
-
-module.exports = (server, app) => {
-  const io = socketInit(server, app);
-
-  const webNsp = io.of('/web-client').on('connect', (socket) => {
-    console.log('hello');
-    socket.emit('hello', `드론 관제탑 서버에 접속하였습니다.`);
+module.exports = function (server, app) {
+  var io = socketInit(server, app);
+  var webNsp = io.of('/web-client').on('connect', function (socket) {
+    socket.emit('hello', "\uB4DC\uB860 \uAD00\uC81C\uD0D1 \uC11C\uBC84\uC5D0 \uC811\uC18D\uD558\uC600\uC2B5\uB2C8\uB2E4.");
     socket.emit('dronsConnetStatus', Object.values(onlineMap));
   });
-
-  io.of(/^\/drone-.+$/).on('connect', (socket) => {
+  io.of(/^\/drone-.+$/).on('connect', function (socket) {
     if (!onlineMap[socket.nsp.name]) {
       onlineMap[socket.nsp.name] = {
         mission: null,
@@ -29,12 +25,11 @@ module.exports = (server, app) => {
         lastSignal: moment().unix()
       };
     }
-
-    socket.emit('hello', `드론 관제탑 서버에 접속하였습니다.`);
+    socket.emit('hello', "\uB4DC\uB860 \uAD00\uC81C\uD0D1 \uC11C\uBC84\uC5D0 \uC811\uC18D\uD558\uC600\uC2B5\uB2C8\uB2E4.");
 
     // 드론의 메시지
-    socket.on('message', (data) => {
-      let mission;
+    socket.on('message', function (data) {
+      var mission;
       if (onlineMap[socket.nsp.name]) {
         onlineMap[socket.nsp.name].lastSignal = moment().unix();
         mission = onlineMap[socket.nsp.name].mission;
@@ -45,16 +40,15 @@ module.exports = (server, app) => {
           lastSignal: moment().unix()
         };
       }
-
       webNsp.emit('message', {
         droneName: socket.nsp.name.substring(1),
-        mission,
-        data
+        mission: mission,
+        data: data
       });
     });
 
     // 드론의 미션 정보
-    socket.on('mission', (data) => {
+    socket.on('mission', function (data) {
       if (onlineMap[socket.nsp.name]) {
         onlineMap[socket.nsp.name].mission = data;
         onlineMap[socket.nsp.name].lastSignal = moment().unix();
@@ -67,19 +61,17 @@ module.exports = (server, app) => {
       }
       webNsp.emit('mission', {
         droneName: socket.nsp.name.substring(1),
-        data
+        data: data
       });
     });
-
-    socket.on('disconnect', () => {
+    socket.on('disconnect', function () {
       delete onlineMap[socket.nsp.name];
     });
   });
 };
-
-const checkOnlineMap = () => {
-  const now = moment().unix();
-  Object.keys(onlineMap).forEach((key) => {
+var checkOnlineMap = function checkOnlineMap() {
+  var now = moment().unix();
+  Object.keys(onlineMap).forEach(function (key) {
     if (now - onlineMap[key].lastSignal > 30) {
       delete onlineMap[key];
     }
