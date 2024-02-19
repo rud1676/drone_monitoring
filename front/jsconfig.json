@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", // 모든 상대 경로 임포트의 기준이 되는 디렉토리를 설정
+    "paths": {
+      "@/*": ["./src/*"] // '@/'를 사용하여 './src/' 디렉토리 내의 파일을 임포트할 수 있게 함
+    }
+  },
+
+  "include": ["src", "webpack.config.ts"],
+  "exclude": ["node_modules"]
+}

@@ -1,4 +1,2 @@
-.storybook/
 .next/
 build/
-next.config.js

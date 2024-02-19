@@ -1,8 +1,3 @@
-/* eslint-disable no-alert, no-console */
-
-// const apiBaseUrl = 'http://localhost:4051';
-
-// return Promise => for using then
 const useWeather = async (lat, lng) => {
   const response = await fetch(`/api/weather?lat=${lat}&lng=${lng}`);
   try {

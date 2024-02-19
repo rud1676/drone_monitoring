@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import io from 'socket.io-client';
-import { backUrl } from '../define';
+import { backUrl } from '@/utils/define';
 
 let socket = null;
 const useClientSocket = () => {
