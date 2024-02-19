@@ -4,7 +4,7 @@ import { Typography, Button, Box } from '@mui/material';
 export const HeaderLayout = styled(Box)`
   background: #1f2243;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  width: calc(100% - 80px);
+  width: calc(100%);
   height: 90px;
   flex-shrink: 0;
   position: fixed;
@@ -18,7 +18,7 @@ export const HeaderLayout = styled(Box)`
 
 export const HeaderText = styled(Typography)`
   color: #999dbf;
-  font-family: Noto Sans KR;
+  font-family: 'Noto Sans KR';
   font-size: 20px;
   font-style: normal;
   font-weight: 500;

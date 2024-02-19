@@ -23,6 +23,7 @@ const config: Configuration = {
     static: './dist',
     hot: true,
     port: 3001,
+    historyApiFallback: true,
   },
   module: {
     rules: [

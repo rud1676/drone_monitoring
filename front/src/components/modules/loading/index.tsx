@@ -1,3 +1,4 @@
+import React from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/system';
@@ -11,10 +12,11 @@ const Container = styled(Box)(({ theme }) => ({
   },
 }));
 
-export default function Loading() {
+const Loading = () => {
   return (
     <Container>
       <CircularProgress />
     </Container>
   );
-}
+};
+export default Loading;

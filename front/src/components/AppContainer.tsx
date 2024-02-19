@@ -14,13 +14,15 @@ declare module '@mui/material/styles' {
 }
 
 const theme = createTheme({
-  typography: {
-    fontFamily: 'NotoSansKR',
-    button: {
-      textTransform: 'none',
-    },
-  },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        body {
+          font-family: 'Noto Sans KR', sans-serif;
+          height:100%;
+        }
+      `,
+    },
     MuiButtonBase: {
       defaultProps: {
         // disableTouchRipple: true,

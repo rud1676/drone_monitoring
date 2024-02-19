@@ -1,10 +1,9 @@
-/* eslint-disable react/button-has-type */
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Box, Button, Typography } from '@mui/material';
 import io from 'socket.io-client';
 import Loading from '@/components/modules/loading';
-import DroneComponent from '@/components/modules/drone-simul/drone';
+import VirtualDrone from '@/components/modules/VirtualDrone';
 import { backUrl } from '@/utils/define';
 
 // Latitude, Longitude, Altitude
@@ -19,7 +18,7 @@ const missionInfo = [
   [37.47640570035723, 128.9210892783022, 99],
 ];
 
-export default function Drone() {
+const Simulation = () => {
   // 드론은 메시지를 보내기만 한다.
   const [showDrone, setShowDrone] = useState('');
   const [drones, setDrones] = useState([]);
@@ -82,8 +81,9 @@ export default function Drone() {
       <Box>현재 드론 갯수: {drones.length}</Box>
 
       {drones.map((drone, i) => (
-        <DroneComponent key={drone.name} i={i} d={drone} />
+        <VirtualDrone key={drone.name} i={i} d={drone} />
       ))}
     </Box>
   );
-}
+};
+export default Simulation;

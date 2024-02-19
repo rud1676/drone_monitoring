@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // 페이지 컴포넌트 임포트
 import Home from '@/components/pages/Home';
-import DroneSimul from '@/components/pages/DroneSimul';
+import Simulation from '@/components/pages/Simulation';
 import AppContainer from '@/components/AppContainer';
 
 const App: React.FC = () => (
@@ -11,7 +11,7 @@ const App: React.FC = () => (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/dronesimul" element={<DroneSimul />} />
+        <Route path="/simul" element={<Simulation />} />
         {/* 추가적인 라우트 설정 */}
       </Routes>
     </Router>

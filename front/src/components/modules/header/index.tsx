@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GiDeliveryDrone } from 'react-icons/gi';
 import PropTypes from 'prop-types';
-import * as HStyle from './index.style.ts';
+import * as HStyle from './index.style';
 
 // 전역변수로 선언해 이벤트 등록시점이랑 상관없이 dronesSum값 불러옴
 const dronesSum = [];
