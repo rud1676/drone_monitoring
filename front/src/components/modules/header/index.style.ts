@@ -7,9 +7,8 @@ export const HeaderLayout = styled(Box)`
   width: calc(100%);
   height: 90px;
   flex-shrink: 0;
-  position: fixed;
   top: 0px;
-  z-index: 10;
+  z-index: 9990;
   display: flex;
   justify-content: space-between;
   padding: 29px 40px;

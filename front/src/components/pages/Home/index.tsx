@@ -198,7 +198,7 @@ const Home = () => {
         })}
       <MuhanVwMap
         drones={drones}
-        sx={{ height: '100vh' }}
+        sx={{ height: 'calc(100vh - 90px)' }}
         viewCenter={viewCenterCoordinate}
       />
     </div>

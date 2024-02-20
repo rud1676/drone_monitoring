@@ -301,7 +301,7 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
       });
     };
     // remote NoFlyZone info
-    const response = await fetch('/api/vworld');
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/area');
     const data = await response.json();
 
     const features = new GeoJSON({
