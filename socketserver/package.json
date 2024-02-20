@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node build/server.js",
     "watch": "nodemon --exec babel-node src/server.js",
-    "build": "babel src -d build",
+    "build": "yarn install && babel src -d build",
     "prettier": "prettier --check ."
   },
   "repository": {

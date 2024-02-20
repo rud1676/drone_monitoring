@@ -142,7 +142,7 @@ const Home = () => {
           );
 
           // 최초 생성시 날씨 데이터 불러옴
-          const weatherData = useWeather(
+          const weatherData: Array<WeatherType> = useWeather(
             insertData.data.droneLatitude,
             insertData.data.droneLongitude,
           );

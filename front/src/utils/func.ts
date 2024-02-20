@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { DroneType, CameraType } from '@/type/type';
+import { DroneType, CameraType, WeatherType } from '@/type/type';
 
 // 연창을 닫을 때 state에서 지워주는 함수
 export const onClickClose = (
@@ -12,6 +12,7 @@ export const onClickClose = (
   });
 };
 
+// 드론 카메라 버튼 누를때
 export const onClickDroneCamera = (
   v: DroneType,
   setState: Dispatch<SetStateAction<Array<CameraType>>>,
@@ -21,4 +22,21 @@ export const onClickDroneCamera = (
       return [...prev, { name: v.name, videoSrc: v.videoSrc, color: v.color }];
     return [...prev];
   });
+};
+
+export const useWeather = async (
+  lat: number,
+  lng: number,
+): ProArray<WeatherType> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/weather?lat=${lat}&lng=${lng}`,
+    );
+    const data = await response.json();
+    const d = await data.data.response.body.items.item;
+    return d;
+  } catch (error) {
+    console.warn('weather api error', error);
+    return null;
+  }
 };
