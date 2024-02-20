@@ -32,7 +32,7 @@ export interface DroneType {
     content: string;
   }>;
   videoSrc: string;
-  weather?: any;
+  weather?: Array<WeatherType>;
   dataLength: number;
 }
 
@@ -40,4 +40,9 @@ export interface CameraType {
   name: string;
   videoSrc: string;
   color: string;
+}
+
+export interface WeatherType {
+  title: string;
+  content: string | number;
 }

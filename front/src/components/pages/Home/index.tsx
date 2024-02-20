@@ -3,7 +3,12 @@ import React, { useState, useEffect } from 'react';
 import useClientSocket from '@/hooks/useClientSocket';
 import useWeather from '@/hooks/useWeather';
 import useData from '@/hooks/useData';
-import { SocketDroneType, DroneType, CameraType } from '@/type/type';
+import {
+  SocketDroneType,
+  DroneType,
+  CameraType,
+  WeatherType,
+} from '@/type/type';
 import { onClickClose } from '@/utils/func';
 
 import CameraCard from '@/components/modules/CameraCard';
@@ -15,7 +20,7 @@ import { cDroneColorKeys } from '@/utils/define';
 import MuhanVwMap from '@/components/lib/MuhanVWMap';
 
 // 드론 데이터 랜더링하기 위한 state배열 생성
-const ParseDataToRender = str => {
+const ParseDataToRender = (str: string) => {
   const parsData = JSON.parse(str);
   const state = [
     { title: '고도', content: parsData.droneAltitude.toString() },
@@ -36,7 +41,9 @@ const Home = () => {
   const [drones, setDrones] = useState<Array<DroneType>>([]);
   const [openDrone, setOpenDrone] = useState<Array<DroneType>>([]);
   const [cameras, setCameras] = useState<Array<CameraType>>([]);
-  const [weatherinfo, setWeatherinfo] = useState(undefined);
+  const [weatherinfo, setWeatherinfo] = useState<
+    Array<WeatherType> | undefined
+  >(undefined);
   const [showdrone, setShowdrone] = useState(false);
 
   const [dataLength] = useData(drones);
@@ -59,7 +66,7 @@ const Home = () => {
   };
 
   // 드론 날씨 버튼 눌럿을시 weather를 설정해준다.
-  const onClickDroneWeather = drone => {
+  const onClickDroneWeather = (drone: DroneType) => {
     setWeatherinfo(drone.weather);
   };
 
