@@ -101,6 +101,7 @@ const Home = () => {
           color: '',
           videoSrc: '',
           clearFunctionId: 0,
+          weaher: undefined,
         };
 
         let isDroneHere = false;
@@ -145,9 +146,7 @@ const Home = () => {
             insertData.data.droneLatitude,
             insertData.data.droneLongitude,
           );
-          weatherData.then(e => {
-            insertData.weather = e;
-          });
+          insertData.weather = weatherData;
           return [...prev, insertData];
         }
         // 이미 생성된 데이터

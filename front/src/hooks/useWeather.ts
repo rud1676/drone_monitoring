@@ -4,7 +4,8 @@ const useWeather = async (lat: number, lng: number) => {
   );
   try {
     const data = await response.json();
-    return data.data.response.body.items.item;
+    const d = await data.data.response.body.items.item;
+    return d;
   } catch (error) {
     console.warn('weather api error', error);
     return null;
