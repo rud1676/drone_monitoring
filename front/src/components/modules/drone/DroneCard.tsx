@@ -9,7 +9,7 @@ import React, {
 import * as SDCard from './index.style';
 import Battery from './Battery';
 import DroneCardClose from '@/assets/img/DroneCardClose.svg';
-import { CameraType, DroneType } from '@/type/type';
+import { CameraType, DroneType, WeatherType } from '@/type/type';
 import { onClickClose } from '@/utils/func';
 
 interface DroneCardType {
@@ -17,7 +17,7 @@ interface DroneCardType {
   order: number;
   setDrones: Dispatch<SetStateAction<Array<DroneType>>>;
   setCameras: Dispatch<SetStateAction<Array<CameraType>>>;
-  onClickDroneWeather: any;
+  setWeatherinfo: Dispatch<SetStateAction<Array<WeatherType> | undefined>>;
 }
 
 const DroneCard = ({
@@ -25,7 +25,7 @@ const DroneCard = ({
   setDrones,
   setCameras,
   order = 0,
-  onClickDroneWeather,
+  setWeatherinfo,
 }: DroneCardType) => {
   const [isPress, setIsPress] = useState(false);
   const [prevX, setPrevX] = useState(0);
@@ -114,7 +114,7 @@ const DroneCard = ({
         <SDCard.ButtonBox>
           <SDCard.CardButton
             onClick={() => {
-              onClickDroneWeather(drone);
+              setWeatherinfo(drone.weather);
             }}
           >
             기상정보

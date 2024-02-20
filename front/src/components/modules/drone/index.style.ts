@@ -2,7 +2,7 @@ import { Stack, IconButton, Card, Typography, Box } from '@mui/material';
 import Button from '@mui/material/Button';
 import style from '@emotion/styled';
 
-export const CardWrapper = style(Card)`
+export const CardWrapper = style(Card)<{ num: number; backcolor: string }>`
 position:absolute;
 left:${props => props.num * 5 + 500}px;
 top:${props => props.num * 20 + 100}px;

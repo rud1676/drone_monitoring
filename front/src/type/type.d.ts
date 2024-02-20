@@ -43,6 +43,10 @@ export interface CameraType {
 }
 
 export interface WeatherType {
-  title: string;
-  content: string | number;
+  baseDate: string;
+  baseTime: string;
+  category: string;
+  nx: number;
+  ny: number;
+  obsrValue: string;
 }

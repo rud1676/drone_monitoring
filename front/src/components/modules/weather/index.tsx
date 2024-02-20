@@ -1,8 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { Dispatch, SetStateAction } from 'react';
 import styled from '@emotion/styled';
 import { Typography, Box } from '@mui/material';
 import CloseButton from '@/assets/img/CloseButton.svg';
+import { WeatherType } from '@/type/type';
+
+interface WeatherBoxType {
+  setWeatherinfo: Dispatch<SetStateAction<Array<WeatherType> | undefined>>;
+  weather: Array<WeatherType>;
+}
 
 const Title = styled(Typography)`
   color: #1f2243;
@@ -47,7 +52,8 @@ const ContentBox = styled(Box)`
   width: 100%;
 `;
 
-const WeatherBox = ({ onClickWeatherClose, weather }) => {
+const WeatherBox = ({ setWeatherinfo, weather }: WeatherBoxType) => {
+  console.log(weather);
   const temperature = weather[3].obsrValue;
   const humidity = weather[1].obsrValue;
   const windSpeed = weather[7].obsrValue;
@@ -56,7 +62,9 @@ const WeatherBox = ({ onClickWeatherClose, weather }) => {
       <TitleBox>
         <Title>기상정보</Title>
         <img
-          onClick={onClickWeatherClose}
+          onClick={() => {
+            setWeatherinfo(undefined);
+          }}
           src={CloseButton.src}
           width={10}
           height={10}
@@ -72,11 +80,6 @@ const WeatherBox = ({ onClickWeatherClose, weather }) => {
       </ContentBox>
     </WeatherWrapper>
   );
-};
-
-WeatherBox.propTypes = {
-  weather: PropTypes.array,
-  onClickWeatherClose: PropTypes.func,
 };
 
 export default WeatherBox;

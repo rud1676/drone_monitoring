@@ -64,15 +64,6 @@ const Home = () => {
     onClickClose(insertData, setCameras);
   };
 
-  // 드론 날씨 버튼 눌럿을시 weather를 설정해준다.
-  const onClickDroneWeather = (drone: DroneType) => {
-    setWeatherinfo(drone.weather);
-  };
-
-  // 날씨 닫기 버튼 눌럿을 시 weather를 undefined로 설정해줌.
-  const onClickWeatherClose = () => {
-    setWeatherinfo(undefined);
-  };
   useEffect(() => {
     // 소켓 부분
     socket?.on('message', (data: SocketDroneType) => {
@@ -165,10 +156,7 @@ const Home = () => {
         onClickHandle={() => setShowdrone(prev => !prev)}
       />
       {weatherinfo && (
-        <WeatherBox
-          onClickWeatherClose={onClickWeatherClose}
-          weather={weatherinfo}
-        />
+        <WeatherBox setWeatherinfo={setWeatherinfo} weather={weatherinfo} />
       )}
       {cameras.length !== 0 &&
         cameras.map((v, i) => (
@@ -194,7 +182,7 @@ const Home = () => {
             <DroneCard // 드론 상태창 띄우기
               setCameras={setCameras}
               setDrones={setDrones}
-              onClickDroneWeather={onClickDroneWeather}
+              setWeatherinfo={setWeatherinfo}
               order={i}
               key={v.name}
               drone={v}
