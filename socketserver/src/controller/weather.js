@@ -101,27 +101,31 @@ function getBaseDatetime() {
 }
 
 const weather = async (req, res) => {
-  const { lat: strLat, lng: strLng } = req.query;
-  const lat = parseFloat(strLat);
-  const lng = parseFloat(strLng);
-  const { x, y } = dfsXyConv('toXY', lat, lng);
-  const { baseDate, baseTime } = getBaseDatetime();
-  const query = new URLSearchParams({
-    serviceKey: process.env.WEATHER_API,
-    pageNo: '1',
-    numOfRows: '1000',
-    dataType: 'JSON',
-    base_date: baseDate,
-    base_time: baseTime,
-    nx: x,
-    ny: y
-  }).toString();
+  try {
+    const { lat: strLat, lng: strLng } = req.query;
+    const lat = parseFloat(strLat);
+    const lng = parseFloat(strLng);
+    const { x, y } = dfsXyConv('toXY', lat, lng);
+    const { baseDate, baseTime } = getBaseDatetime();
+    const query = new URLSearchParams({
+      serviceKey: process.env.WEATHER_API,
+      pageNo: '1',
+      numOfRows: '1000',
+      dataType: 'JSON',
+      base_date: baseDate,
+      base_time: baseTime,
+      nx: x,
+      ny: y
+    }).toString();
 
-  const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?${query}`;
-  const response = await fetch(url);
-  const data = await response.json();
-  res.statusCode = 200;
-  res.json({ data });
+    const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?${query}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    res.statusCode = 200;
+    res.json({ data });
+  } catch {
+    res.send('Weather Error');
+  }
 };
 
 export default weather;
