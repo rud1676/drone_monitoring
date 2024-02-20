@@ -97,7 +97,7 @@ cursor:pointer;
   border-bottom:1px solid #D8D9E6;
 `;
 
-export const OneDroneTitle = style(Typography)`
+export const OneDroneTitle = style(Typography)<{ tcolor: string }>`
 color: ${props => props.tcolor};
 
 font-family: Noto Sans KR;

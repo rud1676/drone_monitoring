@@ -65,7 +65,7 @@ const WeatherBox = ({ setWeatherinfo, weather }: WeatherBoxType) => {
           onClick={() => {
             setWeatherinfo(undefined);
           }}
-          src={CloseButton.src}
+          src={CloseButton}
           width={10}
           height={10}
           style={{ cursor: 'pointer' }}

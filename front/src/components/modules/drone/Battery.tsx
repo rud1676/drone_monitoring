@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import styled from '@emotion/styled';
 
@@ -14,9 +13,9 @@ const BatteryWrapper = styled(Box)`
   align-items: center;
 `;
 
-const Battery = ({ value }) => {
+const Battery = ({ value }: { value: number }) => {
   const [fillnum, setFillnum] = useState(1);
-  const BatteryArr = [Battery0.src, Battery1.src, Battery2.src, Battery3.src];
+  const BatteryArr = [Battery0, Battery1, Battery2, Battery3];
   useEffect(() => {
     setFillnum(Math.floor(value / 34) + 1);
     if (value <= 10) {
@@ -29,10 +28,6 @@ const Battery = ({ value }) => {
       <img src={BatteryArr[fillnum]} width={26.3} height={19} alt="배터리" />
     </BatteryWrapper>
   );
-};
-
-Battery.propTypes = {
-  value: PropTypes.number.isRequired,
 };
 
 export default Battery;

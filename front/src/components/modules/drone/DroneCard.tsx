@@ -80,7 +80,7 @@ const DroneCard = ({
               onClickClose(drone, setDrones);
             }}
           >
-            <img src={DroneCardClose.src} width={10} height={10} alt="닫기" />
+            <img src={DroneCardClose} width={10} height={10} alt="닫기" />
           </SDCard.CardButtonBox>
         </SDCard.CardHeaderLeft>
       </SDCard.CardHeader>
