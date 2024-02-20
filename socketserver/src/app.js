@@ -5,7 +5,7 @@ import apiRouter from './routers/api';
 const app = express();
 app.use(
   cors({
-    origin: ['http://localhost:4051', 'http://localhost:3001'],
+    origin: ['http://localhost:4051'],
     credentials: true,
     webSocket: true
   })

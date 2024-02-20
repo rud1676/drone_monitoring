@@ -143,7 +143,6 @@ const Home = () => {
           });
           return [...prev, insertData];
         }
-        console.log(drones);
         // 이미 생성된 데이터
 
         return [...prev];
