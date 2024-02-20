@@ -2,7 +2,9 @@
 
 var _app = _interopRequireDefault(require("./app"));
 var _socket = _interopRequireDefault(require("./socket"));
+var _dotenv = _interopRequireDefault(require("dotenv"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+_dotenv["default"].config();
 var PORT = process.env.PORT || 4211;
 var handleListening = function handleListening() {
   return console.log("\u2705 Server listenting on ".concat(PORT, " \uD83D\uDE80"));

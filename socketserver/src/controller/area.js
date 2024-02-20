@@ -14,7 +14,6 @@ const area = async (_req, res) => {
       geomFilter,
       crs: 'EPSG:900913'
     }).toString();
-    console.log(query);
 
     const url = `https://api.vworld.kr/req/data?${query}`;
     const response = await fetch(url);

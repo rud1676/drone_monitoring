@@ -32,7 +32,7 @@ export interface DroneType {
     content: string;
   }>;
   videoSrc: string;
-  weather?: Array<WeatherType>;
+  weather?: Array<WeatherType> | undefined;
   dataLength: number;
 }
 

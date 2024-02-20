@@ -10,7 +10,7 @@ var _api = _interopRequireDefault(require("./routers/api"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 var app = (0, _express["default"])();
 app.use((0, _cors["default"])({
-  origin: ['http://localhost:4051', 'https://muhan-control-system.vercel.app', 'https://main.d3gdj7l0zvv4fe.amplifyapp.com'],
+  origin: ['http://localhost:4051', 'http://localhost:3001', 'https://dronesocket.onrender.com'],
   credentials: true,
   webSocket: true
 }));

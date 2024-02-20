@@ -24,19 +24,13 @@ export const onClickDroneCamera = (
   });
 };
 
-export const useWeather = async (
+export const fetchWeather = async (
   lat: number,
   lng: number,
-): ProArray<WeatherType> => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/weather?lat=${lat}&lng=${lng}`,
-    );
-    const data = await response.json();
-    const d = await data.data.response.body.items.item;
-    return d;
-  } catch (error) {
-    console.warn('weather api error', error);
-    return null;
-  }
+): Promise<Array<WeatherType> | undefined> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/weather?lat=${lat}&lng=${lng}`,
+  );
+  const data = await response.json();
+  return data.data.response.body.items.item;
 };

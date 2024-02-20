@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 import useClientSocket from '@/hooks/useClientSocket';
-import useWeather from '@/hooks/useWeather';
 import useData from '@/hooks/useData';
 import {
   SocketDroneType,
@@ -9,7 +8,7 @@ import {
   CameraType,
   WeatherType,
 } from '@/type/type';
-import { onClickClose } from '@/utils/func';
+import { onClickClose, fetchWeather } from '@/utils/func';
 
 import CameraCard from '@/components/modules/CameraCard';
 import DroneList from '@/components/modules/DroneList';
@@ -83,7 +82,7 @@ const Home = () => {
         const parseMissionData = JSON.parse(data?.mission);
 
         const missionData = parseMissionData
-          ? parseMissionData.map(e => ({
+          ? parseMissionData.map((e: Array<any>) => ({
               lon: e[1],
               lat: e[0],
             }))
@@ -92,7 +91,7 @@ const Home = () => {
           data.data.length * ((90 + Math.ceil(Math.random() * 30)) / 100),
         );
 
-        const insertData = {
+        const insertData: DroneType = {
           name: data.droneName,
           state: parseState,
           data: parseData,
@@ -101,7 +100,6 @@ const Home = () => {
           color: '',
           videoSrc: '',
           clearFunctionId: 0,
-          weaher: undefined,
         };
 
         let isDroneHere = false;
@@ -142,11 +140,13 @@ const Home = () => {
           );
 
           // 최초 생성시 날씨 데이터 불러옴
-          const weatherData: Array<WeatherType> = useWeather(
+          const weatherData = fetchWeather(
             insertData.data.droneLatitude,
             insertData.data.droneLongitude,
           );
-          insertData.weather = weatherData;
+          weatherData.then((e: Array<WeatherType> | undefined) => {
+            insertData.weather = e;
+          });
           return [...prev, insertData];
         }
         // 이미 생성된 데이터

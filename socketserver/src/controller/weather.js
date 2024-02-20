@@ -124,7 +124,7 @@ const weather = async (req, res) => {
     res.statusCode = 200;
     res.json({ data });
   } catch {
-    res.send('Weather Error');
+    res.json({ data: 'Weather Error' });
   }
 };
 
