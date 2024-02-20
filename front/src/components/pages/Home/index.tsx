@@ -46,7 +46,7 @@ const Home = () => {
   const [viewCenterCoordinate, setViewCenterCoordinate] = useState<{
     lon: number;
     lat: number;
-  }>();
+  }>({ lon: 0, lat: 0 });
 
   // 드론 통신 끊켰을 때 불러오는 함수
   const createTimerFunction = (insertData: DroneType) => {
@@ -143,6 +143,7 @@ const Home = () => {
           });
           return [...prev, insertData];
         }
+        console.log(drones);
         // 이미 생성된 데이터
 
         return [...prev];
