@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GiDeliveryDrone } from 'react-icons/gi';
-import PropTypes from 'prop-types';
 import * as HStyle from './index.style';
+import { DroneType } from '@/type/type';
+
+interface HeadersType {
+  drones: Array<DroneType>;
+  onClickHandle: () => void;
+}
 
 // 전역변수로 선언해 이벤트 등록시점이랑 상관없이 dronesSum값 불러옴
-const dronesSum = [];
+const dronesSum: Array<{ name: string; sumData: number }> = [];
 
-const Headers = ({ drones, onClickHandle }) => {
+const Headers = ({ drones, onClickHandle }: HeadersType) => {
   const [totalData, setTotalData] = useState(0);
 
   // 각 드론에 대한 총량을 구하고
@@ -41,6 +46,7 @@ const Headers = ({ drones, onClickHandle }) => {
             dronesSum[idx].sumData += v.dataLength;
           checkDisConnect[idx] = true;
         }
+        console.log(dronesSum);
       });
 
       // 빠진 드론은 합에서 제외시킨다.
@@ -69,7 +75,7 @@ const Headers = ({ drones, onClickHandle }) => {
     return () => {
       clearInterval(intervalId);
     };
-  }, []); // 의존성 배열에 drones 추가
+  }, []);
 
   return (
     <HStyle.HeaderLayout>
@@ -95,8 +101,4 @@ const Headers = ({ drones, onClickHandle }) => {
   );
 };
 
-Headers.propTypes = {
-  drones: PropTypes.array,
-  onClickHandle: PropTypes.func,
-};
 export default Headers;

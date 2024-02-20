@@ -1,7 +1,13 @@
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import OpenViduVideoComponent from './OvVideo';
+import { Subscriber } from 'openvidu-browser';
+
+const StyledVideo = styled.video`
+  width: 100%;
+  height: auto;
+  float: left;
+  cursor: pointer;
+`;
 
 const Streamcomponent = styled.div`
   background: rgba(0, 0, 0, 0);
@@ -13,18 +19,30 @@ const Streamcomponent = styled.div`
   margin: auto;
 `;
 
-const UserVideoComponent = streamManager => {
+interface UserVideoComponentType {
+  streamManager: Subscriber;
+}
+
+const UserVideoComponent = ({ streamManager }: UserVideoComponentType) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const getNicknameTag = useCallback(() => {
-    const { stream } = streamManager.streamManager;
+    const { stream } = streamManager;
     const jsonstr = stream.connection.data;
     return JSON.parse(jsonstr).clientData;
+  }, [streamManager]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      streamManager.addVideoElement(videoRef.current);
+    }
   }, [streamManager]);
 
   return (
     <div>
       {streamManager !== undefined ? (
         <Streamcomponent>
-          <OpenViduVideoComponent streamManager={streamManager.streamManager} />
+          <StyledVideo autoPlay ref={videoRef} />
           <div>
             <p>{getNicknameTag()}</p>
           </div>
@@ -32,10 +50,6 @@ const UserVideoComponent = streamManager => {
       ) : null}
     </div>
   );
-};
-
-UserVideoComponent.propTypes = {
-  streamManager: PropTypes.object,
 };
 
 export default UserVideoComponent;

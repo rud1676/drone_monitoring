@@ -1,8 +1,6 @@
-/* eslint-disable no-alert, no-console */
-import React, { useState, useCallback, useEffect } from 'react';
-import PropType from 'prop-types';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { OpenVidu } from 'openvidu-browser';
+import { OpenVidu, Session, Subscriber } from 'openvidu-browser';
 
 import UserVideoComponent from '@/components/lib/openVidu/UserVideoComponent';
 import {
@@ -14,37 +12,34 @@ import {
 // 데모서버로 할지, 배포된 URL로 할지
 const APPLICATION_SERVER_URL = 'https://demos.openvidu.io/';
 
-const CameraOpenVidu = ({ mySessionId = '' }) => {
+interface CameraOpenViduType {
+  mySessionId: string;
+}
+
+const CameraOpenVidu = ({ mySessionId }: CameraOpenViduType) => {
   // 접속할 세션 이름
-  if (!mySessionId) {
-    mySessionId = `Session${Math.floor(Math.random() * 100)}`;
-  }
-  // 실제 세션 데이터
-  const [session, setSession] = useState(undefined);
-  // 메인 카메라 - 드론 카메라 셋팅
-  const [mainStreamManager, setMainStreamManager] = useState(undefined);
-  // 세션에 나 말고 접속된 유저들 받아오기. - 드론 카메라 한대만 받을예정
+  mySessionId = `Session${Math.floor(Math.random() * 100)}`;
   // 이 세션에 접속할 이름 설정
   const myUserName = `카메라시청자${Math.floor(Math.random() * 100)}`;
 
-  let mySession = null;
+  // 세션에 나 말고 접속된 유저들 받아오기. - 드론 카메라 한대만 받을예정
+  const mySession = useRef<Session | null>(null);
+  // 메인 카메라 - 드론 카메라 셋팅
+  const [mainStreamManager, setMainStreamManager] = useState<Subscriber | null>(
+    null,
+  );
 
-  const leaveSession = useCallback(() => {
+  const leaveSession = () => {
     // --- 7) Leave the session by calling 'disconnect' method over the Session object ---
-    if (mySession) {
-      mySession.disconnect();
+    if (mySession.current) {
+      mySession.current.disconnect();
     }
 
     // Empty all properties...
-    setSession(undefined);
-    setMainStreamManager(undefined);
-  }, [mySession]);
+    setMainStreamManager(null);
+  };
 
-  const onbeforeunload = useCallback(() => {
-    leaveSession();
-  }, [leaveSession]);
-
-  const createToken = useCallback(async sessionId => {
+  const createToken = useCallback(async (sessionId: string) => {
     const sendURL = `${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`;
     const response = await axios.post(
       sendURL,
@@ -56,7 +51,7 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
     return response.data; // The token
   }, []);
 
-  const createSession = async sessionId => {
+  const createSession = async (sessionId: string) => {
     const sendURL = `${APPLICATION_SERVER_URL}api/sessions`;
     const res = await axios.post(
       sendURL,
@@ -68,51 +63,51 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
     return res.data;
   };
 
-  const getToken = useCallback(async () => {
+  const getToken = async () => {
     // console.log(`${mySessionId}에 연결합니다`);
     const sessionId = await createSession(mySessionId);
+    console.log(`${sessionId}에 연결합니다`);
     return createToken(sessionId);
-  }, [mySessionId, createToken]);
+  };
 
-  const deleteSubscriber = useCallback(() => {
-    setMainStreamManager(undefined);
-  }, []);
+  const deleteSubscriber = () => {
+    setMainStreamManager(null);
+  };
 
-  const joinSession = useCallback(() => {
+  const joinSession = () => {
     // --- 1) Get an OpenVidu object ---
     const OV = new OpenVidu();
 
     // --- 2) Init a session ---
-    mySession = OV.initSession();
-    setSession(mySession);
+    mySession.current = OV.initSession();
+    const CurrentSession = mySession.current;
     // --- 3) Specify the actions when events take place in the session ---
     // 세션에 이미 연결된 다른사람을 발견할 때, 세션에 다른 사람이 연결 할 때 발생하는 이벤트.
-    mySession.on('streamCreated', event => {
-      const subc = mySession.subscribe(event.stream, undefined);
+    CurrentSession.on('streamCreated', event => {
+      const subc = CurrentSession.subscribe(event.stream, undefined);
       setMainStreamManager(subc);
     });
 
     // 세션에 다른사람 카메라 연결이 끊어졌을 때 발생
-    mySession.on('streamDestroyed', event => {
-      deleteSubscriber(event.stream.streamManager);
+    CurrentSession.on('streamDestroyed', () => {
+      deleteSubscriber();
     });
 
     // On every asynchronous exception...
-    mySession.on('exception', exception => {
+    CurrentSession.on('exception', exception => {
       // eslint-disable
       console.warn(exception);
     });
 
     // --- 4) Connect to the session with a valid user token ---
     getToken().then(token => {
-      mySession
-        .connect(token, { clientData: myUserName })
+      CurrentSession.connect(token, { clientData: myUserName })
         .then(async () => {
           const publish = await OV.initPublisherAsync(undefined, {
             audioSource: undefined, // The source of audio. If undefined default microphone
             videoSource: undefined, // The source of video. If undefined default webcam
             publishAudio: false, // Whether you want to start publishing with your audio unmuted or not
-            publishVideo: null, // Whether you want to start publishing with your video enabled or not
+            publishVideo: undefined, // Whether you want to start publishing with your video enabled or not
             resolution: '640x480', // The resolution of your video
             frameRate: 30, // The frame rate of your video
             insertMode: 'APPEND', // How the video is inserted in the target element 'video-container'
@@ -120,7 +115,7 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
           });
 
           // --- 6) Publish your stream ---
-          mySession.publish(publish);
+          CurrentSession.publish(publish);
         })
         .catch(error => {
           console.error(
@@ -130,20 +125,20 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
           );
         });
     });
-  }, [getToken]);
+  };
 
   useEffect(() => {
-    window.addEventListener('beforeunload', onbeforeunload);
+    window.addEventListener('beforeunload', leaveSession);
     joinSession();
     return () => {
       leaveSession();
-      window.removeEventListener('beforeunload', onbeforeunload);
+      window.removeEventListener('beforeunload', leaveSession);
     };
-  }, [onbeforeunload, joinSession, leaveSession]);
+  }, []);
 
   return (
     <div>
-      {session !== undefined ? (
+      {mySession.current !== undefined ? (
         <div>
           <OpenViduHeader>
             <a
@@ -153,7 +148,7 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
               <OpenViduSessionName>{`${mySessionId} 컴퓨터 테스트용 카메라 연결`}</OpenViduSessionName>
             </a>
           </OpenViduHeader>
-          {mainStreamManager !== undefined ? (
+          {mainStreamManager !== null ? (
             <div id="main-video" className="col-md-5">
               <UserVideoComponent streamManager={mainStreamManager} />
             </div>
@@ -168,8 +163,4 @@ const CameraOpenVidu = ({ mySessionId = '' }) => {
   );
 };
 
-CameraOpenVidu.propTypes = {
-  mySessionId: PropType.string,
-};
-
-export default CameraOpenVidu;
+export default React.memo(CameraOpenVidu);

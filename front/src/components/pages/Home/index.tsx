@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 import useClientSocket from '@/hooks/useClientSocket';
 import useWeather from '@/hooks/useWeather';
+import { SocketDroneType, DroneType, CameraType } from '@/type/type';
+
 import CameraCard from '@/components/modules/CameraCard';
-import CameraOpenVidu from '@/components/modules/CameraCard/CameraOpenVidu';
 import DroneRender from '@/components/modules/drone/DroneRender';
 import DroneCard from '@/components/modules/drone/DroneCard';
 import WeatherBox from '@/components/modules/weather';
@@ -30,22 +31,16 @@ const ParseDataToRender = str => {
 };
 
 const Home = () => {
-  const [drones, setDrones] = useState([]);
-  const [openDrone, setOpenDrone] = useState([]);
-  const [cameras, setCameras] = useState([]);
+  const [drones, setDrones] = useState<Array<DroneType>>([]);
+  const [openDrone, setOpenDrone] = useState<Array<DroneType>>([]);
+  const [cameras, setCameras] = useState<Array<CameraType>>([]);
   const [weatherinfo, setWeatherinfo] = useState(undefined);
   const [showdrone, setShowdrone] = useState(false);
 
-  const [socket, disconnect] = useClientSocket();
+  const [socket, _disconnect] = useClientSocket();
 
   const [viewCenterCoordinate, setViewCenterCoordinate] = useState();
-  // 드론 영상 닫기시 카메라 배열에 드론을 지운다.
-  const onClickCameraClose = v => {
-    setCameras(prev => {
-      const temp = prev.filter(drone => drone.name !== v.name);
-      return [...temp];
-    });
-  };
+
   // 드론 상태창 닫기를 누르면 열려있는드론 목록에서 지워준다.
   const onClickDroneClose = v => {
     setOpenDrone(prev => {
@@ -64,15 +59,6 @@ const Home = () => {
     onClickCameraClose(insertData);
   };
 
-  // 드론 영상 클릭시 카메라 배열에 드론을 담아준다.
-  const onClickDroneCamera = v => {
-    setCameras(prev => {
-      if (prev.findIndex(drone => drone.name === v.name) === -1)
-        return [...prev, v];
-      return [...prev];
-    });
-  };
-
   // 드론 날씨 버튼 눌럿을시 weather를 설정해준다.
   const onClickDroneWeather = drone => {
     setWeatherinfo(drone.weather);
@@ -84,7 +70,7 @@ const Home = () => {
   };
   useEffect(() => {
     // 메시지
-    socket?.on('message', data => {
+    socket?.on('message', (data: SocketDroneType) => {
       setDrones(prev => {
         const parseState = ParseDataToRender(data.data);
         const parseData = JSON.parse(data.data);
@@ -106,6 +92,9 @@ const Home = () => {
           data: parseData,
           mission: missionData,
           dataLength: randData >= 200 ? randData : 200, // 각 드론이 소켓에서 얻는 문자열 수를 데이터 전송값으로 저장
+          color: '',
+          videoSrc: '',
+          clearFunctionId: 0,
         };
 
         let isDroneHere = false;
@@ -181,21 +170,14 @@ const Home = () => {
         />
       )}
       {cameras.length !== 0 &&
-        cameras.map((v, i) => {
-          const splitarr = v.videoSrc.split('/');
-          const sessionId = splitarr[splitarr.length - 1];
-          return (
-            // 카메라 창 띄우기
-            <CameraCard
-              key={v.name}
-              onClickCameraClose={onClickCameraClose}
-              drone={v}
-              number={i}
-            >
-              <CameraOpenVidu mySessionId={sessionId} />
-            </CameraCard>
-          );
-        })}
+        cameras.map((v, i) => (
+          <CameraCard
+            key={v.name}
+            setCameras={setCameras}
+            oneCamera={v}
+            number={i}
+          />
+        ))}
       {showdrone && ( // 드론 접속 목록창 띄우기
         <DroneRender
           setOpenDrone={setOpenDrone}
@@ -209,8 +191,8 @@ const Home = () => {
         openDrone.map((v, i) => {
           return (
             <DroneCard // 드론 상태창 띄우기
-              onClickDroneCamera={onClickDroneCamera}
-              onClickDroneClose={onClickDroneClose}
+              setCameras={setCameras}
+              setDrones={setDrones}
               onClickDroneWeather={onClickDroneWeather}
               order={i}
               key={v.name}

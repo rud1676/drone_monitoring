@@ -20,7 +20,8 @@
         "namedComponents": "arrow-function",
         "unnamedComponents": "arrow-function"
       }
-    ]
+    ],
+    "react-hooks/exhaustive-deps": "off"
   },
   "ignorePatterns": []
 }

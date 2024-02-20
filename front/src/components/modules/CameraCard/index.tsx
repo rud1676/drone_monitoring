@@ -1,26 +1,44 @@
-import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  Dispatch,
+  SetStateAction,
+} from 'react';
+import CameraOpenVidu from './CameraOpenVidu';
 
 import * as CStyle from './index.style';
 import DroneCardClose from '@/assets/img/DroneCardClose.svg';
 
-const CameraCard = ({ onClickCameraClose, drone, number = 0, children }) => {
+import { CameraType } from '@/type/type';
+import { onClickClose } from '@/utils/func';
+
+interface CameraCardType {
+  setCameras: Dispatch<SetStateAction<Array<CameraType>>>;
+  oneCamera: CameraType;
+  number: number;
+}
+
+const CameraCard = ({ setCameras, oneCamera, number = 0 }: CameraCardType) => {
   const [isPress, setIsPress] = useState(false);
   const [prevX, setPrevX] = useState(0);
   const [prevY, setPrevY] = useState(0);
-  const cardRef = useRef();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const splitarr = oneCamera.videoSrc.split('/');
+  const sessionId = useRef<string>(splitarr[splitarr.length - 1]);
 
   useEffect(() => {
     const target = cardRef.current;
+    if (!target) return;
 
-    const mouseDown = e => {
+    const mouseDown = (e: MouseEvent) => {
       if (e.clientY - target.offsetTop >= 63) return;
       setPrevX(e.clientX);
       setPrevY(e.clientY);
       setIsPress(true);
     };
 
-    const move = e => {
+    const move = (e: MouseEvent) => {
       if (!isPress) return;
 
       const posX = prevX - e.clientX;
@@ -46,30 +64,29 @@ const CameraCard = ({ onClickCameraClose, drone, number = 0, children }) => {
   }, [isPress, prevX, prevY]);
 
   return (
-    <CStyle.CardWrapper ref={cardRef} number={number} backcolor={drone.color}>
+    <CStyle.CardWrapper
+      ref={cardRef}
+      number={number}
+      backcolor={oneCamera.color}
+    >
       <CStyle.CardHeader>
-        <CStyle.CardTitle>{drone.name}</CStyle.CardTitle>
+        <CStyle.CardTitle>{oneCamera.name}</CStyle.CardTitle>
         <img
-          src={DroneCardClose.src}
+          src={DroneCardClose}
           width={10}
           height={10}
           alt="닫기"
           style={{ cursor: 'pointer' }}
           onClick={() => {
-            onClickCameraClose(drone);
+            onClickClose(oneCamera, setCameras);
           }}
         />
       </CStyle.CardHeader>
-      <CStyle.CameraVideoBox> {children} </CStyle.CameraVideoBox>
+      <CStyle.CameraVideoBox>
+        <CameraOpenVidu mySessionId={sessionId} />
+      </CStyle.CameraVideoBox>
     </CStyle.CardWrapper>
   );
 };
 
-CameraCard.propTypes = {
-  drone: PropTypes.object.isRequired,
-  number: PropTypes.number,
-  children: PropTypes.node.isRequired,
-  onClickCameraClose: PropTypes.func,
-};
-
-export default CameraCard;
+export default React.memo(CameraCard);

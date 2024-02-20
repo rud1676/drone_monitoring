@@ -1,7 +1,7 @@
 import { IconButton, Card, Typography, Box, Stack } from '@mui/material';
 import style from '@emotion/styled';
 
-export const CardWrapper = style(Card)`
+export const CardWrapper = style(Card)<{ number: number; backcolor: string }>`
   position:absolute;
   left:${props => props.number * 50}px;
   bottom:0px;
@@ -30,7 +30,7 @@ cursor:pointer;
   padding:16px 17px 19px 30px;
   border-bottom:1px solid rgba(255, 255, 255, 0.30);
 `;
-export const CameraVideoBox = style(Box)`
+export const CameraVideoBox = style(Box)<{ min?: string }>`
   ${props => (props.min === 'true' ? `display:none;` : `display:flex;`)}
   height:20vh;
 `;
