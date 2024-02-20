@@ -100,7 +100,7 @@ function getBaseDatetime() {
   return { baseDate: `${year}${strMonth}${strDay}`, baseTime: strHour };
 }
 
-export default async (req, res) => {
+const weather = async (req, res) => {
   const { lat: strLat, lng: strLng } = req.query;
   const lat = parseFloat(strLat);
   const lng = parseFloat(strLng);
@@ -123,3 +123,5 @@ export default async (req, res) => {
   res.statusCode = 200;
   res.json({ data });
 };
+
+export default weather;

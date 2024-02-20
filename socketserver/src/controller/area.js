@@ -1,4 +1,4 @@
-export default async (req, res) => {
+const area = async (_req, res) => {
   // 비행금지구역
   //   const geomFilter =
   //     'BOX(14135923.110455,4518476.7106496,14135942.219712,4518495.8199067)';
@@ -20,3 +20,5 @@ export default async (req, res) => {
   res.statusCode = 200;
   res.json({ data });
 };
+
+export default area;
