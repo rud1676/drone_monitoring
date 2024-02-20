@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 import useClientSocket from '@/hooks/useClientSocket';
 import useWeather from '@/hooks/useWeather';
+import useData from '@/hooks/useData';
 import { SocketDroneType, DroneType, CameraType } from '@/type/type';
+import { onClickClose } from '@/utils/func';
 
 import CameraCard from '@/components/modules/CameraCard';
-import DroneRender from '@/components/modules/drone/DroneRender';
+import DroneList from '@/components/modules/DroneList';
 import DroneCard from '@/components/modules/drone/DroneCard';
 import WeatherBox from '@/components/modules/weather';
 import Header from '@/components/modules/header';
@@ -37,26 +39,23 @@ const Home = () => {
   const [weatherinfo, setWeatherinfo] = useState(undefined);
   const [showdrone, setShowdrone] = useState(false);
 
+  const [dataLength] = useData(drones);
+
   const [socket, _disconnect] = useClientSocket();
 
-  const [viewCenterCoordinate, setViewCenterCoordinate] = useState();
-
-  // 드론 상태창 닫기를 누르면 열려있는드론 목록에서 지워준다.
-  const onClickDroneClose = v => {
-    setOpenDrone(prev => {
-      const temp = prev.filter(drone => drone.name !== v.name);
-      return [...temp];
-    });
-  };
+  const [viewCenterCoordinate, setViewCenterCoordinate] = useState<{
+    lon: number;
+    lat: number;
+  }>();
 
   // 드론 통신 끊켰을 때 불러오는 함수
-  const createTimerFunction = insertData => {
+  const createTimerFunction = (insertData: DroneType) => {
     setDrones(previous => {
       const temp = previous.filter(e => e.name !== insertData.name);
       return [...temp];
     });
-    onClickDroneClose(insertData);
-    onClickCameraClose(insertData);
+    onClickClose(insertData, setOpenDrone);
+    onClickClose(insertData, setCameras);
   };
 
   // 드론 날씨 버튼 눌럿을시 weather를 설정해준다.
@@ -69,7 +68,7 @@ const Home = () => {
     setWeatherinfo(undefined);
   };
   useEffect(() => {
-    // 메시지
+    // 소켓 부분
     socket?.on('message', (data: SocketDroneType) => {
       setDrones(prev => {
         const parseState = ParseDataToRender(data.data);
@@ -153,10 +152,6 @@ const Home = () => {
       socket?.off('message');
     };
   }, [socket, drones]);
-
-  const handleClickMoveCenter = coordinate => {
-    setViewCenterCoordinate(coordinate);
-  };
   return (
     <div>
       <Header
@@ -179,12 +174,12 @@ const Home = () => {
           />
         ))}
       {showdrone && ( // 드론 접속 목록창 띄우기
-        <DroneRender
+        <DroneList
           setOpenDrone={setOpenDrone}
           onClickClose={() => setShowdrone(false)}
           drones={drones}
-          setCameras={setCameras}
-          onClickMoveCenter={handleClickMoveCenter}
+          dataLength={dataLength}
+          setViewCenterCoordinate={setViewCenterCoordinate}
         />
       )}
       {openDrone.length !== 0 &&

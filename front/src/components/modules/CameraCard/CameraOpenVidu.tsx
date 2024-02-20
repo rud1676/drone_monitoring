@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { OpenVidu, Session, Subscriber } from 'openvidu-browser';
 
-import UserVideoComponent from '@/components/lib/openVidu/UserVideoComponent';
+import UserVideoComponent from '@/components/lib/UserVideoComponent';
 import {
   OpenViduHeader,
   OpenViduSessionName,

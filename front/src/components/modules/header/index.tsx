@@ -46,7 +46,6 @@ const Headers = ({ drones, onClickHandle }: HeadersType) => {
             dronesSum[idx].sumData += v.dataLength;
           checkDisConnect[idx] = true;
         }
-        console.log(dronesSum);
       });
 
       // 빠진 드론은 합에서 제외시킨다.

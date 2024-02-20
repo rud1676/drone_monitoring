@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { Subscriber } from 'openvidu-browser';
 
-const StyledVideo = styled.video`
+const Video = styled.video`
   width: 100%;
   height: auto;
   float: left;
   cursor: pointer;
 `;
 
-const Streamcomponent = styled.div`
+const StreamConatiner = styled.div`
   background: rgba(0, 0, 0, 0);
   color: #777777;
   font-weight: bold;
@@ -26,12 +26,6 @@ interface UserVideoComponentType {
 const UserVideoComponent = ({ streamManager }: UserVideoComponentType) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const getNicknameTag = useCallback(() => {
-    const { stream } = streamManager;
-    const jsonstr = stream.connection.data;
-    return JSON.parse(jsonstr).clientData;
-  }, [streamManager]);
-
   useEffect(() => {
     if (videoRef.current) {
       streamManager.addVideoElement(videoRef.current);
@@ -41,12 +35,9 @@ const UserVideoComponent = ({ streamManager }: UserVideoComponentType) => {
   return (
     <div>
       {streamManager !== undefined ? (
-        <Streamcomponent>
-          <StyledVideo autoPlay ref={videoRef} />
-          <div>
-            <p>{getNicknameTag()}</p>
-          </div>
-        </Streamcomponent>
+        <StreamConatiner>
+          <Video autoPlay ref={videoRef} />
+        </StreamConatiner>
       ) : null}
     </div>
   );
