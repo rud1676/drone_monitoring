@@ -50,3 +50,23 @@ export interface WeatherType {
   ny: number;
   obsrValue: string;
 }
+
+export interface MissionType {
+  color: string;
+  droneName: string;
+  path: Array<{ lat: number; lon: number }>;
+}
+
+export interface MissionPointType {
+  color: string;
+  coordinate: { lon: number; lat: number };
+  droneName: string;
+  index: number;
+}
+
+export interface MapDroneType {
+  name: string;
+  lon: number;
+  lat: number;
+  color: string;
+}

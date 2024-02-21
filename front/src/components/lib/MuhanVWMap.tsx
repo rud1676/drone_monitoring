@@ -1,6 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  RefObject,
+} from 'react';
 import { Box } from '@mui/material';
+import { SxProps } from '@mui/system';
+
+//vworld 임포트
 import 'ol/ol.css';
 import { Map as OlMap, View as OlView, Feature as OlFeature } from 'ol';
 import * as olExtent from 'ol/extent';
@@ -8,8 +16,18 @@ import { XYZ as OlXYZ, Vector as OlVectorSource } from 'ol/source';
 import { Tile as OlTile, Vector as OlVectorLayer } from 'ol/layer';
 import { defaults } from 'ol/control';
 import { fromLonLat } from 'ol/proj';
-import { Point as OlPoint, LineString as OlLineString } from 'ol/geom';
+import {
+  Point as OlPoint,
+  LineString as OlLineString,
+  Geometry,
+  Point,
+} from 'ol/geom';
+import Map from 'ol/Map';
+import Feature, { FeatureLike } from 'ol/Feature';
+
 import GeoJSON from 'ol/format/GeoJSON';
+
+import { cDefaultCenter, getDroneStyle } from '@/utils/define';
 import {
   Style as OlStyle,
   Circle as OlCircle,
@@ -17,61 +35,67 @@ import {
   Stroke as OlStroke,
   Text as OlText,
 } from 'ol/style';
-import { MAP_API_KEY } from '@/utils/define';
+import {
+  MapDroneType,
+  MissionType,
+  MissionPointType,
+  DroneType,
+} from '@/type/type';
 
-const cDroneStyles = new Map([
-  ['red', { basic: [0xff, 0, 0, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['green', { basic: [0, 0x80, 0, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['blue', { basic: [0, 0, 0xff, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['purple', { basic: [0x80, 0, 0x80, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['lime', { basic: [0, 0xff, 0, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['yellow', { basic: [0xff, 0xff, 0, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['aqua', { basic: [0, 0xff, 0xff, 1], text: [0xff, 0xff, 0xff, 1] }],
+interface MuhanVwMapType {
+  drones: Array<DroneType>;
+  sx: SxProps;
+  viewCenter: { lon: number; lat: number };
+}
 
-  ['#E9485F', { basic: [233, 72, 95, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#E4547F', { basic: [228, 84, 127, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#E261A7', { basic: [226, 97, 167, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#BF4FAD', { basic: [191, 79, 173, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#A24FBF', { basic: [162, 79, 191, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#845BC8', { basic: [132, 91, 200, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#736BD7', { basic: [115, 107, 215, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#6b83d7', { basic: [107, 131, 215, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#6B9DD7', { basic: [107, 157, 215, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#66ABD1', { basic: [102, 171, 209, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#5FC1C1', { basic: [95, 193, 193, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#63BEA9', { basic: [99, 190, 169, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#71C793', { basic: [113, 199, 147, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#8DD486', { basic: [141, 212, 134, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#A3CD6E', { basic: [163, 205, 110, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#CCC868', { basic: [204, 200, 104, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#E1C560', { basic: [225, 197, 96, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#E1A864', { basic: [225, 168, 100, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#EF8D6E', { basic: [239, 141, 110, 1], text: [0xff, 0xff, 0xff, 1] }],
-  ['#E87C75', { basic: [232, 124, 117, 1], text: [0xff, 0xff, 0xff, 1] }],
-]);
+// 레이어에 정보를 추가하는 함수
+function addFeaturesToLayer<ItemType>(
+  featuresToAdd: ItemType[],
+  sourceRef: RefObject<OlVectorSource> | undefined,
+  createGeometry: (
+    item: <ItemType>,
+  ) => Geometry,
+  functype: 'drone' | 'mission' | 'missionPoint',
+) {
+  if (featuresToAdd.length > 0 && sourceRef && sourceRef.current) {
+    featuresToAdd.forEach(item => {
+      const name = 'name' in item ? item.name : item.droneName;
+      const index = 'index' in item ? item.index : undefined;
+      const newFeature = new OlFeature({
+        geometry: createGeometry(item), // 지오메트리 생성 콜백 호출
+        customInfo: {
+          // 공통 정보
+          type: functype,
+          name: name, // name 또는 droneName 사용
+          color: item.color,
+          ...(index !== undefined && { index }), // index가 있으면 추가
+        },
+      });
+      if (sourceRef.current) sourceRef.current.addFeature(newFeature);
+    });
+  }
+}
 
-const getDroneStyle = key => {
-  return cDroneStyles.get(key) || cDroneStyles.get('red');
-};
-const cDefaultCenter = {
-  lon: 127.189972804,
-  lat: 37.723058796,
-};
-const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
+const MuhanVwMap = ({
+  drones,
+  sx = {},
+  viewCenter = cDefaultCenter,
+}: MuhanVwMapType) => {
   const [readyToMap, setReadyToMap] = useState(false);
   const [centerCoo, setCenterCoordinate] = useState(viewCenter);
-  const olSrcForMissionRef = useRef();
-  const olSrcForMissionPathNumberRef = useRef();
-  const olSrcForDroneRef = useRef();
-  const olMapRef = useRef();
-  const [noFlyZones, setNoFlyZones] = useState([]);
+  const olSrcForMissionRef = useRef<OlVectorSource>(null);
+  const olSrcForMissionPathNumberRef = useRef<OlVectorSource>(null);
+  const olSrcForDroneRef = useRef<OlVectorSource>(null);
+  const olMapRef = useRef<OlMap>();
 
   useEffect(() => {
     if (viewCenter.lon !== centerCoo.lon || viewCenter.lat !== centerCoo.lat) {
       setCenterCoordinate({ ...viewCenter });
-      olMapRef.current
-        ?.getView()
-        ?.setCenter(fromLonLat([viewCenter.lon, viewCenter.lat]));
+      if (olMapRef.current) {
+        olMapRef.current
+          .getView()
+          .setCenter(fromLonLat([viewCenter.lon, viewCenter.lat]));
+      }
     }
   }, [viewCenter]);
   useEffect(() => {
@@ -82,7 +106,11 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
         lat: drone.data.droneLatitude,
         color: drone.color,
       }));
-      const newMissions = [];
+      const newMissions: Array<{
+        droneName: string;
+        path: Array<{ lon: number; lat: number }>;
+        color: string;
+      }> = [];
       drones.forEach(drone => {
         if (drone.mission) {
           newMissions.push({
@@ -93,7 +121,12 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
         }
       });
 
-      const newMissionPoints = [];
+      const newMissionPoints: Array<{
+        droneName: string;
+        coordinate: { lon: number; lat: number };
+        color: string;
+        index: number;
+      }> = [];
       drones.forEach(drone => {
         if (drone.mission) {
           drone.mission.forEach((missionPoint, index) => {
@@ -106,35 +139,43 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
           });
         }
       });
-      let addingDrones = [...newDrones];
+      let addingDrones: Array<MapDroneType> = [...newDrones];
       let addingMissions = [...newMissions];
       let addingMissionPoints = [...newMissionPoints];
-      const removingDroneFeatures = [];
-      const removingMissionFeatures = [];
-      const removingMissionPointFeatures = [];
+      const removingDroneFeatures: Array<Feature<Geometry>> = [];
+      const removingMissionFeatures: Array<Feature<Geometry>> = [];
+      const removingMissionPointFeatures: Array<Feature<Geometry>> = [];
 
-      olSrcForDroneRef.current.getFeatures().forEach(feature => {
-        const ftCustomInfo = feature.get('customInfo');
-        if (ftCustomInfo) {
-          const ftType = ftCustomInfo.type;
-          if (ftType === 'drone') {
-            const ftDroneName = ftCustomInfo.name;
-            const foundInfo = newDrones.find(
-              droneInfo => droneInfo.name === ftDroneName,
-            );
-            if (foundInfo) {
-              addingDrones = addingDrones.filter(
-                drone => drone.name !== ftDroneName,
+      if (!olSrcForDroneRef.current) return;
+      if (!olSrcForMissionRef.current) return;
+      if (!olSrcForMissionPathNumberRef.current) return;
+
+      olSrcForDroneRef.current
+        .getFeatures()
+        .forEach((feature: Feature<Geometry>) => {
+          const ftCustomInfo = feature.get('customInfo');
+          if (ftCustomInfo) {
+            const ftType = ftCustomInfo.type;
+            if (ftType === 'drone') {
+              const ftDroneName = ftCustomInfo.name;
+              const foundInfo = newDrones.find(
+                droneInfo => droneInfo.name === ftDroneName,
               );
-              feature
-                .getGeometry()
-                .setCoordinates(fromLonLat([foundInfo.lon, foundInfo.lat]));
-            } else {
-              removingDroneFeatures.push(feature);
+              if (foundInfo) {
+                addingDrones = addingDrones.filter(
+                  drone => drone.name !== ftDroneName,
+                );
+                const geometry = feature.getGeometry();
+                if (geometry instanceof Point)
+                  geometry.setCoordinates(
+                    fromLonLat([foundInfo.lon, foundInfo.lat]),
+                  );
+              } else {
+                removingDroneFeatures.push(feature);
+              }
             }
           }
-        }
-      });
+        });
 
       olSrcForMissionRef.current.getFeatures().forEach(feature => {
         const ftCustomInfo = feature.get('customInfo');
@@ -152,7 +193,9 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
               const coordinates = foundInfo.path.map(ll =>
                 fromLonLat([ll.lon, ll.lat]),
               );
-              feature.getGeometry()?.setCoordinates(coordinates);
+              const geometry = feature.getGeometry();
+              if (geometry instanceof Point)
+                geometry.setCoordinates(coordinates);
             } else {
               removingMissionFeatures.push(feature);
             }
@@ -179,9 +222,9 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
                   missionPoint.index !== ftIndex,
               );
 
-              feature
-                .getGeometry()
-                ?.setCoordinates(
+              const geometry = feature.getGeometry();
+              if (geometry instanceof Point)
+                geometry.setCoordinates(
                   fromLonLat([
                     foundInfo.coordinate.lon,
                     foundInfo.coordinate.lat,
@@ -195,90 +238,55 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
       });
       if (removingDroneFeatures.length > 0) {
         removingDroneFeatures.forEach(feature => {
-          olSrcForDroneRef.current.removeFeature(feature);
+          if (olSrcForDroneRef.current)
+            olSrcForDroneRef.current.removeFeature(feature);
         });
       }
       if (removingMissionFeatures.length > 0) {
         removingMissionFeatures.forEach(feature => {
-          olSrcForMissionRef.current.removeFeature(feature);
+          if (olSrcForMissionRef.current)
+            olSrcForMissionRef.current.removeFeature(feature);
         });
       }
       if (removingMissionPointFeatures.length > 0) {
         removingMissionPointFeatures.forEach(feature => {
-          olSrcForMissionPathNumberRef.current.removeFeature(feature);
+          if (olSrcForMissionPathNumberRef.current)
+            olSrcForMissionPathNumberRef.current.removeFeature(feature);
         });
       }
 
-      if (addingDrones.length > 0) {
-        addingDrones.forEach(drone => {
-          const newFeature = new OlFeature({
-            geometry: new OlPoint(fromLonLat([drone.lon, drone.lat])),
-            name: drone.name,
-            customInfo: {
-              type: 'drone',
-              name: drone.name,
-              color: drone.color,
-            },
-          });
-
-          olSrcForDroneRef.current.addFeature(newFeature);
-          newFeature.getGeometry().on('change', () => {
-            if (onNoFlyZone) {
-              const isNoFlyZone = noFlyZones.some(zone =>
-                olExtent.containsCoordinate(
-                  zone,
-                  newFeature.getGeometry().getFlatCoordinates(),
-                ),
-              );
-              if (isNoFlyZone) {
-                onNoFlyZone(drone.name);
-              }
-            }
-          });
-        });
-      }
-
-      if (addingMissions.length > 0) {
-        addingMissions.forEach(mission => {
-          const coordinates = mission.path.map(ll =>
-            fromLonLat([ll.lon, ll.lat]),
-          );
-          const newFeature = new OlFeature({
-            geometry: new OlLineString(coordinates),
-            customInfo: {
-              type: 'mission',
-              droneName: mission.droneName,
-              color: mission.color,
-            },
-          });
-          olSrcForMissionRef.current.addFeature(newFeature);
-        });
-      }
-
-      if (addingMissionPoints.length > 0) {
-        addingMissionPoints.forEach(missionPoint => {
-          const newFeature = new OlFeature({
-            geometry: new OlPoint(
-              fromLonLat([
-                missionPoint.coordinate.lon,
-                missionPoint.coordinate.lat,
-              ]),
-            ),
-            customInfo: {
-              type: 'missionPoint',
-              droneName: missionPoint.droneName,
-              color: missionPoint.color,
-              index: missionPoint.index,
-            },
-          });
-
-          olSrcForMissionPathNumberRef.current.addFeature(newFeature);
-        });
-      }
+      // 드론, 임무, 임무 지점 추가를 위한 개별 호출
+      addFeaturesToLayer(
+        addingDrones,
+        olSrcForDroneRef,
+        drone => new OlPoint(fromLonLat([drone.lon, drone.lat])),
+        'drone',
+      );
+      addFeaturesToLayer(
+        addingMissions,
+        olSrcForMissionRef,
+        mission =>
+          new OlLineString(
+            mission.path.map(ll => fromLonLat([ll.lon, ll.lat])),
+          ),
+        'mission',
+      );
+      addFeaturesToLayer(
+        addingMissionPoints,
+        olSrcForMissionPathNumberRef,
+        missionPoint =>
+          new OlPoint(
+            fromLonLat([
+              missionPoint.coordinate.lon,
+              missionPoint.coordinate.lat,
+            ]),
+          ),
+        'missionPoint',
+      );
     }
   }, [drones, readyToMap]);
 
-  const addVectorLayer = useCallback(async paramMap => {
+  const addVectorLayer = useCallback(async (paramMap: Map) => {
     //
 
     const getStyleForDefault = () => {
@@ -309,10 +317,10 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
       featureProjection: 'EPSG:3857',
     }).readFeatures(data.data.response.result.featureCollection);
 
-    const featureExtents = features.map(featureItem =>
-      olExtent.clone(featureItem.getGeometry().getExtent()),
-    );
-    setNoFlyZones(featureExtents);
+    features.map((featureItem: Feature<Geometry>) => {
+      const geomet = featureItem.getGeometry();
+      if (geomet) olExtent.clone(geomet.getExtent());
+    });
 
     // add a layer for NoFlyZone
 
@@ -352,39 +360,43 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
     });
 
     // missin path line
-    const getStyleForMission = feature => {
+    const getStyleForMission = (feature: FeatureLike) => {
       const customInfo = feature.get('customInfo');
 
       if (customInfo) {
         if (customInfo.type === 'mission') {
-          const style = getDroneStyle(customInfo.color);
-          const mColor = style.basic;
+          const style:
+            | { basic: Array<number>; text: Array<number> }
+            | undefined = getDroneStyle(customInfo.color);
 
-          return new OlStyle({
-            image: new OlCircle({
-              radius: 7,
-              fill: new OlFill({ color: 'blue' }),
+          if (style) {
+            const mColor = style.basic;
+            return new OlStyle({
+              image: new OlCircle({
+                radius: 7,
+                fill: new OlFill({ color: 'blue' }),
+                stroke: new OlStroke({
+                  color: [255, 0, 255],
+                  width: 20,
+                }),
+              }),
               stroke: new OlStroke({
-                color: [255, 0, 255],
-                width: 20,
+                width: 2,
+                color: mColor,
               }),
-            }),
-            stroke: new OlStroke({
-              width: 2,
-              color: mColor,
-            }),
-            fill: new OlFill({
-              color: [255, 0, 255, 0.15],
-            }),
-            text: new OlText({
-              text: `mission\n${customInfo.droneName}`,
               fill: new OlFill({
-                color: 'black',
+                color: [255, 0, 255, 0.15],
               }),
-              stroke: new OlStroke({ color: 'yellow', width: 3 }),
-              scale: 1.5,
-            }),
-          });
+              text: new OlText({
+                text: `mission\n${customInfo.droneName}`,
+                fill: new OlFill({
+                  color: 'black',
+                }),
+                stroke: new OlStroke({ color: 'yellow', width: 3 }),
+                scale: 1.5,
+              }),
+            });
+          }
         }
       }
       return getStyleForDefault();
@@ -398,12 +410,12 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
     });
 
     // mission path number
-    const getStyleForMissionPathNumber = feature => {
+    const getStyleForMissionPathNumber = (feature: FeatureLike) => {
       const customInfo = feature.get('customInfo');
 
-      if (customInfo) {
-        if (customInfo.type === 'missionPoint') {
-          const style = getDroneStyle(customInfo.color);
+      if (customInfo.type === 'missionPoint') {
+        const style = getDroneStyle(customInfo.color);
+        if (style) {
           const basicColor = style.basic;
           return new OlStyle({
             image: new OlCircle({
@@ -437,12 +449,12 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
     });
 
     // drone
-    const getStyleForDrone = feature => {
+    const getStyleForDrone = (feature: FeatureLike) => {
       const customInfo = feature.get('customInfo');
 
-      if (customInfo) {
-        if (customInfo.type === 'drone') {
-          const style = getDroneStyle(customInfo.color);
+      if (customInfo.type === 'drone') {
+        const style = getDroneStyle(customInfo.color);
+        if (style) {
           const mColor = style.basic;
           const mTextColor = style.text;
 
@@ -466,7 +478,6 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
               text: customInfo.name,
               fill: new OlFill({
                 color: mTextColor,
-                width: 2,
               }),
               stroke: new OlStroke({ color: mColor, width: 1 }),
               // scale: 1.5,
@@ -503,7 +514,7 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
         new OlTile({
           visible: true,
           source: new OlXYZ({
-            url: `https://api.vworld.kr/req/wmts/1.0.0/${MAP_API_KEY}/Base/{z}/{y}/{x}.png`,
+            url: `https://api.vworld.kr/req/wmts/1.0.0/${process.env.MAP_API_KEY}/Base/{z}/{y}/{x}.png`,
           }),
         }),
       ],
@@ -518,38 +529,6 @@ const MuhanVwMap = ({ drones, sx, onNoFlyZone, viewCenter }) => {
   }, [addVectorLayer]);
 
   return <Box id="map" sx={{ ...sx }} />;
-};
-
-MuhanVwMap.propTypes = {
-  sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  drones: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      data: PropTypes.shape({
-        droneLongitude: PropTypes.number,
-        droneLatitude: PropTypes.number,
-      }).isRequired,
-      color: PropTypes.string,
-      mission: PropTypes.arrayOf(
-        PropTypes.shape({
-          lon: PropTypes.number,
-          lat: PropTypes.number,
-        }),
-      ),
-    }),
-  ),
-  onNoFlyZone: PropTypes.func,
-  viewCenter: PropTypes.shape({
-    lon: PropTypes.number,
-    lat: PropTypes.number,
-  }),
-};
-
-MuhanVwMap.defaultProps = {
-  sx: {},
-  drones: [],
-  onNoFlyZone: null,
-  viewCenter: cDefaultCenter,
 };
 
 export default MuhanVwMap;
