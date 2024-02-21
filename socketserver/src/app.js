@@ -8,7 +8,8 @@ app.use(
     origin: [
       'http://localhost:4051',
       'http://localhost:3001',
-      'https://dronesocket.onrender.com'
+      'https://dronesocket.onrender.com',
+      'https://main--droneapp.netlify.app/'
     ],
     credentials: true,
     webSocket: true
