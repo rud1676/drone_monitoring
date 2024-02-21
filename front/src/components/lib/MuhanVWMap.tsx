@@ -244,10 +244,9 @@ const MuhanVwMap = ({
       }
       return getStyleForDefault();
     };
-    if (olSrcForMissionRef.current)
-      olSrcForMissionRef.current = new OlVectorSource({
-        features: [],
-      });
+    olSrcForMissionRef.current = new OlVectorSource({
+      features: [],
+    });
     const newLayerForMission = new OlVectorLayer({
       source: olSrcForMissionRef.current,
       style: getStyleForMission,

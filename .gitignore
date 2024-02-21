@@ -34,8 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# webpack build 
-dist
 
 #check worktree
 .work
