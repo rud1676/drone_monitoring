@@ -1,14 +1,14 @@
-import { Stack, Typography, Box } from '@mui/material';
+import { Stack, Typography, Box, ListItem } from '@mui/material';
 import style from '@emotion/styled';
 
-export const DroneStack = style(Stack)`
+export const ConnectListContainer = style(Stack)`
  background: rgba(255,255,255,0.4);
  max-height:559px;
  width: 500px;
  overflow:scroll;
 `;
 
-export const DroneRenderTitle = style(Typography)`
+export const ConnectTitleText = style(Typography)`
  color: #FFF;
 font-family: Noto Sans KR;
 font-size: 18px;
@@ -17,7 +17,7 @@ font-weight: 500;
 line-height: normal;
  `;
 
-export const DronwConnectWrapper = style(Box)`
+export const ConnectLayout = style(Box)`
   position:absolute;
   top:90px;
   left:calc(100% - 499px);
@@ -26,7 +26,7 @@ export const DronwConnectWrapper = style(Box)`
   background: #FFF;
 `;
 
-export const DronConnectHeader = style(Box)`
+export const ConnectHeaderContainer = style(Box)`
   width: 499px;
   height: 73px;
   flex-shrink: 0;
@@ -37,7 +37,7 @@ export const DronConnectHeader = style(Box)`
   align-items:center;
 `;
 
-export const OneDroneBox = style(Box)`
+export const ConnectItem = style(ListItem)`
 cursor:pointer;
   display:flex;
   align-items:center;
@@ -46,9 +46,8 @@ cursor:pointer;
   border-bottom:1px solid #D8D9E6;
 `;
 
-export const OneDroneTitle = style(Typography)<{ tcolor: string }>`
+export const ConnectItemText = style(Typography)<{ tcolor: string }>`
 color: ${props => props.tcolor};
-
 font-family: Noto Sans KR;
 font-size: 16px;
 font-style: normal;
@@ -57,7 +56,7 @@ line-height: normal;
 margin-left:15px;
 `;
 
-export const TotalDataTransform = style.p`
+export const ConnectDataText = style.p`
 margin-bottom: 15px;
     margin-left: 8px;
     color: #1F1F1F;

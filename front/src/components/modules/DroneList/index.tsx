@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from 'react';
 
 import * as ListStyle from './index.style';
-import ListItem from './ListItem';
+import ConnectListItem from './ConnectListItem';
 import CloseButton from '@/assets/img/CloseButton.svg';
 import { DroneType } from '@/type/type';
 
@@ -23,10 +23,10 @@ const DroneList = ({
   dataLength,
 }: DroneListType) => {
   return (
-    <ListStyle.DronwConnectWrapper>
-      <ListStyle.DronConnectHeader>
-        <ListStyle.DroneRenderTitle>드론 접속 목록</ListStyle.DroneRenderTitle>
-        <ListStyle.TotalDataTransform>{`데이터전송 ${dataLength} 건/초`}</ListStyle.TotalDataTransform>
+    <ListStyle.ConnectLayout>
+      <ListStyle.ConnectHeaderContainer>
+        <ListStyle.ConnectTitleText>드론 접속 목록</ListStyle.ConnectTitleText>
+        <ListStyle.ConnectDataText>{`데이터전송 ${dataLength} 건/초`}</ListStyle.ConnectDataText>
         <img
           style={{ cursor: 'pointer' }}
           onClick={onClickClose}
@@ -35,11 +35,11 @@ const DroneList = ({
           height={10}
           alt="닫기"
         />
-      </ListStyle.DronConnectHeader>
-      <ListStyle.DroneStack>
+      </ListStyle.ConnectHeaderContainer>
+      <ListStyle.ConnectListContainer>
         {drones.map(v => {
           return (
-            <ListItem
+            <ConnectListItem
               key={v.name}
               drone={v}
               setOpenDrone={setOpenDrone}
@@ -47,8 +47,8 @@ const DroneList = ({
             />
           );
         })}
-      </ListStyle.DroneStack>
-    </ListStyle.DronwConnectWrapper>
+      </ListStyle.ConnectListContainer>
+    </ListStyle.ConnectLayout>
   );
 };
 
