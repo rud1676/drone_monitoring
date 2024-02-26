@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
-import io from 'socket.io-client';
+import { useCallback } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { backUrl } from '@/utils/define';
 
-let socket = null;
-const useClientSocket = () => {
+let socket: null | Socket = null;
+const useClientSocket = (): [Socket | null, () => void] => {
   const disconnect = useCallback(() => {
-    socket.disconnect();
-    socket = {};
+    if (socket) socket.disconnect();
+    socket = null;
   }, []);
 
   if (!socket) {

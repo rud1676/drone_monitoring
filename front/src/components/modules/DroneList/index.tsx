@@ -1,5 +1,4 @@
 import React, { Dispatch, SetStateAction } from 'react';
-
 import * as ListStyle from './index.style';
 import ConnectListItem from './ConnectListItem';
 import CloseButton from '@/assets/img/CloseButton.svg';
