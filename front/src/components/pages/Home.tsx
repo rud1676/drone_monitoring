@@ -23,7 +23,7 @@ import DroneList from '@/components/modules/DroneList';
 import DroneCard from '@/components/modules/drone/DroneCard';
 import WeatherBox from '@/components/modules/weather';
 import Header from '@/components/modules/header';
-import MuhanVwMap from '@/components/lib/MuhanVWMap';
+import VwMap from '@/components/lib/VwMap';
 
 const Home = () => {
   const [drones, setDrones] = useState<Array<DroneType>>([]);
@@ -70,6 +70,7 @@ const Home = () => {
     // 소켓 부분
     if (socket)
       socket.on('message', (data: SocketDroneType) => {
+        console.log(drones);
         onDroneConnect(data);
       });
 
@@ -117,7 +118,7 @@ const Home = () => {
             />
           );
         })}
-      <MuhanVwMap
+      <VwMap
         drones={drones}
         sx={{ height: 'calc(100vh - 90px)' }}
         viewCenter={viewCenterCoordinate}
@@ -125,4 +126,5 @@ const Home = () => {
     </div>
   );
 };
+
 export default Home;

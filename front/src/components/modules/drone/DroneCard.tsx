@@ -26,7 +26,6 @@ const DroneCard = ({
   setCameras,
   order = 0,
   setWeatherinfo,
-  openDrone,
 }: DroneCardType) => {
   const [isPress, setIsPress] = useState(false);
   const [prevX, setPrevX] = useState(0);

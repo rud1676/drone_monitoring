@@ -82,7 +82,7 @@ export const ChangeDroneData = (
       10000,
       newDroneData,
     );
-    return prev;
+    return [...prev];
   });
 };
 
@@ -123,7 +123,7 @@ export const AddDroneArray = (
 ) => {
   setDrones(prev => {
     prev.push(newDrone);
-    return prev;
+    return [...prev];
   });
 };
 
@@ -324,3 +324,38 @@ export function updateFeatures(
     }
   });
 }
+
+export const CreateInfoArrayInMap = (drones: DroneType[]) => {
+  const newDrones: MapDroneType[] = [];
+  const newMissions: MissionType[] = [];
+  const newMissionPoints: MissionPointType[] = [];
+
+  drones.forEach(drone => {
+    newDrones.push({
+      name: drone.name,
+      lon: drone.data.droneLongitude,
+      lat: drone.data.droneLatitude,
+      color: drone.color,
+    });
+    if (drone.mission) {
+      drone.mission.forEach((missionPoint, index) => {
+        newMissionPoints.push({
+          droneName: drone.name,
+          coordinate: { ...missionPoint },
+          color: drone.color,
+          index,
+        });
+        newMissions.push({
+          droneName: drone.name,
+          path: [...drone.mission],
+          color: drone.color,
+        });
+      });
+    }
+  });
+
+  const addingDrones = [...newDrones];
+  const addingMissions = [...newMissions];
+  const addingMissionPoints = [...newMissionPoints];
+  return [addingDrones, addingMissions, addingMissionPoints];
+};
