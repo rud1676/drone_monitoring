@@ -12,7 +12,6 @@ const App: React.FC = () => (
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/simul" element={<Simulation />} />
-        {/* 추가적인 라우트 설정 */}
       </Routes>
     </Router>
   </AppContainer>
