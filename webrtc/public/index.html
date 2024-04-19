@@ -1,0 +1,26 @@
+<head>
+  <meta charset="UTF-8" />
+  <title>라이브스트리밍구현</title>
+</head>
+
+<body>
+  <header>
+    <h1>라이브스트리밍</h1>
+  </header>
+  <main>
+    <div id="welcome">
+      <form>
+        <input placeholder="input session" required type="text" />
+        <button>Enter</button>
+      </form>
+    </div>
+    <div id="call">
+      <div id="myStream">
+        <video id="my" autoplay playsinline width="400" height="400" />
+      </div>
+      <video id="peer" autoplay playsinline width="400" height="400" />
+    </div>
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="./app.js"></script>
+  </main>
+</body>

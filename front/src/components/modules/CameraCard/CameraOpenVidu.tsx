@@ -39,7 +39,7 @@ const CameraOpenVidu = ({ mySessionId }: CameraOpenViduType) => {
     setMainStreamManager(null);
   };
 
-  const createToken = useCallback(async (sessionId: string) => {
+  const createToken = async (sessionId: string) => {
     const sendURL = `${APPLICATION_SERVER_URL}api/sessions/${sessionId}/connections`;
     const response = await axios.post(
       sendURL,
@@ -49,7 +49,7 @@ const CameraOpenVidu = ({ mySessionId }: CameraOpenViduType) => {
       },
     );
     return response.data; // The token
-  }, []);
+  };
 
   const createSession = async (sessionId: string) => {
     const sendURL = `${APPLICATION_SERVER_URL}api/sessions`;
