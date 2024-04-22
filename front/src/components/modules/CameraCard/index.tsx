@@ -83,7 +83,7 @@ const CameraCard = ({ setCameras, oneCamera, number = 0 }: CameraCardType) => {
         />
       </CStyle.CardHeader>
       <CStyle.CameraVideoBox>
-        <CameraOpenVidu mySessionId={sessionId} />
+        <CameraOpenVidu droneref={sessionId} />
       </CStyle.CameraVideoBox>
     </CStyle.CardWrapper>
   );

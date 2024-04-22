@@ -10,6 +10,8 @@ const cpath = missionInfo.map(info => ({
   droneLongitude: info[1],
 }));
 
+const period = 3000;
+
 const VirtualDrone = ({ d, i }) => {
   const [path, setPath] = useState(null);
 
@@ -22,7 +24,7 @@ const VirtualDrone = ({ d, i }) => {
 
         setTimeout(() => {
           startSimulation(2);
-        }, 1000);
+        }, period);
       }
       if (step > 1 && cpath.length > step - 2) {
         d.socket.emit('message', JSON.stringify(cpath[step - 2]));
@@ -36,11 +38,11 @@ const VirtualDrone = ({ d, i }) => {
 
         setTimeout(() => {
           startSimulation(step + 1);
-        }, 1000);
+        }, period);
       } else {
         setTimeout(() => {
           startSimulation(2);
-        }, 1000);
+        }, period);
       }
     };
 
