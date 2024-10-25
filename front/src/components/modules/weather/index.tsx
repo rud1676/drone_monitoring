@@ -54,6 +54,7 @@ const ContentBox = styled(Box)`
 
 const WeatherBox = ({ setWeatherinfo, weather }: WeatherBoxType) => {
   console.log(weather);
+  console.log("PR")
   const temperature = weather[3].obsrValue;
   const humidity = weather[1].obsrValue;
   const windSpeed = weather[7].obsrValue;
